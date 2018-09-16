@@ -13,11 +13,13 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.github.sumimakito.rhythmview.RhythmView
+import com.github.sumimakito.rhythmview.datasource.PlaybackSource
 import com.github.sumimakito.rhythmview.effect.Ray
 import com.github.sumimakito.rhythmview.effect.Ripple
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+    private var dataSource: PlaybackSource? = null
     private var mediaPlayer: MediaPlayer? = null
     private var divisionValue: Int = 8
     private var waveSpeedValue: Float = 0.06f
@@ -30,14 +32,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.MODIFY_AUDIO_SETTINGS), 0xCEE)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0xCEE)
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.creativeminds)
-        rhythmView.mediaPlayer = mediaPlayer
         rhythmView.onRhythmViewLayoutChangedListener = object : RhythmView.OnRhythmViewLayoutChangedListener {
             override fun onLayoutChanged(rhythmView: RhythmView) {
                 if (rhythmView.albumCover == null) {
-                    // https://www.pexels.com/photo/closeup-photo-of-acoustic-guitar-body-and-string-230800/
                     val cover = BitmapFactory.decodeResource(resources, R.raw.cover)
                     colorM = getDominantColor(cover)
                     val hsvL = FloatArray(3)
@@ -60,7 +59,6 @@ class MainActivity : AppCompatActivity() {
                 reloadVisualEffect()
             }
         }
-        mediaPlayer?.start()
 
         settingsToggle.setOnClickListener {
             optionsInnerContainer.visibility = if (optionsInnerContainer.visibility == View.GONE) VISIBLE else GONE
@@ -158,6 +156,8 @@ class MainActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.radioButtonRipple -> {
                     divisionValue = 8
+                    dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
+                    rhythmView.dataSource = dataSource!!
                     waveSpeedValue = 0.04f
                     particleSpeedValue = 0.01f
                     waveSpeed.progress = (waveSpeedValue * 1000).toInt()
@@ -171,6 +171,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.radioButtonRay -> {
                     divisionValue = 256
+                    dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
+                    rhythmView.dataSource = dataSource!!
                     waveSpeedValue = 0.04f
                     waveSpeed.progress = (waveSpeedValue * 1000).toInt()
                     division.max = 252
@@ -223,6 +225,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun reloadVisualEffect() {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.creativeminds)
+            mediaPlayer!!.start()
+        }
+        if (dataSource == null) {
+            dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
+            rhythmView.dataSource = dataSource!!
+        }
+
         when (visualEffect.checkedRadioButtonId) {
             R.id.radioButtonRipple -> {
                 val ripple = Ripple(rhythmView, divisionValue, waveSpeedValue, particleSpeedValue)

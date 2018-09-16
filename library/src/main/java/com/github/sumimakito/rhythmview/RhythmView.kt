@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
-import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
+import com.github.sumimakito.rhythmview.datasource.BaseDataSource
 import com.github.sumimakito.rhythmview.effect.BaseEffect
 import java.text.DecimalFormat
 import kotlin.math.round
@@ -48,14 +48,12 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             field = value
             updateLayoutMetrics()
         }
+
     var onRhythmViewLayoutChangedListener: OnRhythmViewLayoutChangedListener? = null
 
-    var mediaPlayer: MediaPlayer? = null
-        set(value) {
-            field = value
-            initVisualizer()
-        }
+    var dataSource: BaseDataSource<*>? = null
 
+    private var scaledAlbumCover: Bitmap? = null
     var albumCover: Bitmap? = null
         set(value) {
             val clippingPaint = Paint()
@@ -66,13 +64,10 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             canvas.drawCircle((albumCover!!.width / 2).toFloat(), (albumCover!!.height / 2).toFloat(), (albumCover!!.width / 2).toFloat(), clippingPaint)
             clippingPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
             canvas.drawBitmap(value, 0f, 0f, clippingPaint)
+            scaledAlbumCover = null
         }
 
-    var visualEffect: BaseEffect? = null
-        set(value) {
-            field = value
-            initVisualizer()
-        }
+    var visualEffect: BaseEffect<*>? = null
 
     init {
         paintRipple.color = Color.WHITE
@@ -118,7 +113,7 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             renderLoopStarted = true
             post(object : Runnable {
                 override fun run() {
-                    if (visualEffect != null && mediaPlayer != null) {
+                    if (visualEffect != null && visualEffect!!.dataSource != null) {
                         invalidate()
                     }
                     postDelayed(this, renderInterval)
@@ -136,16 +131,23 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
 
         visualEffect?.render(canvas!!)
 
-        canvas?.save()
-        canvas?.rotate(coverRotation, centerX, centerY)
-        if (coverSourceRect == null) {
-            coverSourceRect = Rect(0, 0, albumCover!!.width, albumCover!!.height)
+        if (albumCover != null) {
+            canvas?.save()
+            canvas?.rotate(coverRotation, centerX, centerY)
+            if (coverTargetRect == null) {
+                coverTargetRect = Rect(round(centerX - radius).toInt(), round(centerY - radius).toInt(), round(centerX + radius).toInt(), round(centerY + radius).toInt())
+            }
+            if (scaledAlbumCover == null) {
+                canvas?.drawBitmap(albumCover, Rect(0, 0, albumCover!!.width, albumCover!!.height), coverTargetRect, paintFill)
+                Thread {
+                    scaledAlbumCover = Bitmap.createScaledBitmap(albumCover, coverTargetRect!!.width(), coverTargetRect!!.height(), true)
+                    coverSourceRect = Rect(0, 0, scaledAlbumCover!!.width, scaledAlbumCover!!.height)
+                }.start()
+            } else {
+                canvas?.drawBitmap(scaledAlbumCover, coverSourceRect, coverTargetRect, paintFill)
+            }
+            canvas?.restore()
         }
-        if (coverTargetRect == null) {
-            coverTargetRect = Rect(round(centerX - radius).toInt(), round(centerY - radius).toInt(), round(centerX + radius).toInt(), round(centerY + radius).toInt())
-        }
-        if (albumCover != null) canvas?.drawBitmap(albumCover, coverSourceRect, coverTargetRect, paintFill)
-        canvas?.restore()
 
         visualEffect?.onFrameRendered()
 
@@ -167,14 +169,5 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
 
     interface OnRhythmViewLayoutChangedListener {
         fun onLayoutChanged(rhythmView: RhythmView)
-    }
-
-    private fun initVisualizer() {
-        if (visualEffect == null || mediaPlayer == null) return
-        if (visualizer != null) visualizer!!.enabled = false
-        visualizer = Visualizer(mediaPlayer!!.audioSessionId)
-        visualizer!!.enabled = false
-        visualEffect!!.setupVisualizer(visualizer!!)
-        visualizer!!.enabled = true
     }
 }

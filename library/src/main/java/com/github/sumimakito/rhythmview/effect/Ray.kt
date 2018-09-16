@@ -11,7 +11,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class Ray(rhythmView: RhythmView, private val division: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect(rhythmView) {
+class Ray(rhythmView: RhythmView, private val division: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
 
     var colorHF: Int = 0xffef9a9a.toInt()
     var colorMF: Int = 0xff90caf9.toInt()
@@ -24,7 +24,6 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
     private var outerPoints = ArrayList<PointF>()
     private var innerPoints = ArrayList<PointF>()
     private var paintRay = Paint()
-    private var cachedWave: IntArray? = null
     private var delta: Float
 
     init {
@@ -41,7 +40,7 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
         computePoints()
     }
 
-    private fun refillWave(wave: IntArray) {
+    private fun refillWave(wave: Array<Int>) {
         for (i in 0 until min(wavePoints.size, wave.size)) {
             wavePoints[i].changeTo(wave[i] / 256f)
         }
@@ -49,7 +48,7 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
 
     override fun onFrameRendered() {
         if (frameId % 2 == 0) {
-            if (cachedWave != null) refillWave(cachedWave!!)
+            if (dataSource != null && dataSource!!.data != null) refillWave(dataSource!!.data!!)
         }
 
         for (wavePoint in wavePoints) {
@@ -94,28 +93,6 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
         }
     }
 
-    override fun setupVisualizer(visualizer: Visualizer) {
-        var captureSize = 2
-        while (captureSize < division * 3) {
-            captureSize *= 2
-        }
-        visualizer.captureSize = captureSize
-        visualizer.setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
-            override fun onFftDataCapture(visualizer: Visualizer?, bytes: ByteArray?, samplingRate: Int) {
-
-            }
-
-            override fun onWaveFormDataCapture(p0: Visualizer?, bytes: ByteArray?, p2: Int) {
-                val wave = IntArray(division * 3)
-                val samplingInterval = floor((bytes!!.size - 1).toFloat() / wave.size).toInt()
-                for (i in 0 until wave.size) {
-                    wave[i] = max(0, min(256, bytes[i * samplingInterval] + 128))
-                }
-                cachedWave = wave
-            }
-        }, Visualizer.getMaxCaptureRate(), true, false)
-    }
-
     private fun computePoints() {
         outerPoints.clear()
         for (i in 0 until wavePoints.size) {
@@ -131,5 +108,4 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
         }
         return 0f
     }
-
 }

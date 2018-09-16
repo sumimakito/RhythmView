@@ -1,7 +1,7 @@
 package com.github.sumimakito.rhythmview.effect
 
 import android.graphics.*
-import android.media.audiofx.Visualizer
+import android.util.Log
 import com.github.sumimakito.rhythmview.MathUtils
 import com.github.sumimakito.rhythmview.RhythmView
 import com.github.sumimakito.rhythmview.particle.Particle
@@ -12,7 +12,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.01f) : BaseEffect(rhythmView) {
+class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.01f) : BaseEffect<Int>(rhythmView) {
 
     init {
         minDrawingRadius += maxDrawingWidth * 0.3f
@@ -33,7 +33,6 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
     private var curvePoints = ArrayList<PointF>()
     private var paintRipple = Paint()
     private var paintParticle = Paint()
-    private var cachedWave: IntArray? = null
     private var delta: Float
     private var particleManager = ParticleManager()
 
@@ -57,7 +56,7 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
         buildPath()
     }
 
-    private fun refillWave(wave: IntArray) {
+    private fun refillWave(wave: Array<Int>) {
         for (i in 0 until min(wavePoints.size, wave.size)) {
             wavePoints[i].changeTo(wave[i] / 256f)
         }
@@ -65,7 +64,9 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
 
     override fun onFrameRendered() {
         if (frameId % 2 == 0) {
-            if (cachedWave != null) refillWave(cachedWave!!)
+            if (dataSource != null && dataSource!!.data != null) {
+                refillWave(dataSource!!.data!!)
+            }
         }
         if (frameId % 30 == 0) {
             val direction = (Math.random() * 360).toFloat()
@@ -110,28 +111,6 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
             }
             canvas.drawCircle(particle.x, particle.y, particleRadius, paintParticle)
         }
-    }
-
-    override fun setupVisualizer(visualizer: Visualizer) {
-        var captureSize = 2
-        while (captureSize < division * 3) {
-            captureSize *= 2
-        }
-        visualizer.captureSize = captureSize
-        visualizer.setDataCaptureListener(object : Visualizer.OnDataCaptureListener {
-            override fun onFftDataCapture(visualizer: Visualizer?, bytes: ByteArray?, samplingRate: Int) {
-
-            }
-
-            override fun onWaveFormDataCapture(p0: Visualizer?, bytes: ByteArray?, p2: Int) {
-                val wave = IntArray(division * 3)
-                val samplingInterval = floor((bytes!!.size - 1).toFloat() / wave.size).toInt()
-                for (i in 0 until wave.size) {
-                    wave[i] = max(0, min(256, bytes[i * samplingInterval] + 128))
-                }
-                cachedWave = wave
-            }
-        }, Visualizer.getMaxCaptureRate(), true, false)
     }
 
     private fun computePoints() {
