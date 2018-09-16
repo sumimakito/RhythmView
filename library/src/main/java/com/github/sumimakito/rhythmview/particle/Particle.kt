@@ -1,7 +1,7 @@
 package com.github.sumimakito.rhythmview.particle
 
 import android.graphics.PointF
-import com.github.sumimakito.rhythmview.MathUtils
+import com.github.sumimakito.rhythmview.util.MathUtils
 import kotlin.math.cos
 import kotlin.math.sin
 

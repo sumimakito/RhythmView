@@ -1,4 +1,4 @@
-package com.github.sumimakito.rhythmview
+package com.github.sumimakito.rhythmview.util
 
 import android.graphics.PointF
 

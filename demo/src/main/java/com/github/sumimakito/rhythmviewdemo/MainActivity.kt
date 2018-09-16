@@ -1,6 +1,9 @@
 package com.github.sumimakito.rhythmviewdemo
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -12,13 +15,24 @@ import android.view.View.VISIBLE
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.github.sumimakito.cappuccino.ContentHelper
 import com.github.sumimakito.rhythmview.RhythmView
 import com.github.sumimakito.rhythmview.datasource.PlaybackSource
 import com.github.sumimakito.rhythmview.effect.Ray
+import com.github.sumimakito.rhythmview.effect.RainbowRay
 import com.github.sumimakito.rhythmview.effect.Ripple
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val PERMISSION_OPEN_MUSIC_REQUEST_CODE = 0xCEE
+        const val PERMISSION_OPEN_IMAGE_REQUEST_CODE = 0xCED
+        const val OPEN_MUSIC_REQUEST_CODE = 0xCEC
+        const val OPEN_IMAGE_REQUEST_CODE = 0xCEA
+    }
+
     private var dataSource: PlaybackSource? = null
     private var mediaPlayer: MediaPlayer? = null
     private var divisionValue: Int = 8
@@ -32,8 +46,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 0xCEE)
-
         rhythmView.onRhythmViewLayoutChangedListener = object : RhythmView.OnRhythmViewLayoutChangedListener {
             override fun onLayoutChanged(rhythmView: RhythmView) {
                 if (rhythmView.albumCover == null) {
@@ -45,9 +57,9 @@ class MainActivity : AppCompatActivity() {
                     Color.colorToHSV(colorM, hsvL)
                     Color.colorToHSV(colorM, hsvM)
                     Color.colorToHSV(colorM, hsvD)
-                    hsvL[1] = 0.40f
-                    hsvM[1] = 0.40f
-                    hsvD[1] = 0.40f
+                    // hsvL[1] = 0.40f
+                    // hsvM[1] = 0.40f
+                    // hsvD[1] = 0.40f
                     hsvL[2] = 0.98f
                     hsvM[2] = 0.92f
                     hsvD[2] = 0.86f
@@ -62,6 +74,23 @@ class MainActivity : AppCompatActivity() {
 
         settingsToggle.setOnClickListener {
             optionsInnerContainer.visibility = if (optionsInnerContainer.visibility == View.GONE) VISIBLE else GONE
+        }
+
+        openImage.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_OPEN_IMAGE_REQUEST_CODE)
+            } else {
+                openImageAndSetup()
+            }
+        }
+
+        openMusic.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO), PERMISSION_OPEN_MUSIC_REQUEST_CODE)
+            } else {
+                openMusicAndSetup()
+            }
         }
 
         innerPadding.progress = (rhythmView.innerDrawingPaddingScale * 100).toInt()
@@ -156,10 +185,9 @@ class MainActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.radioButtonRipple -> {
                     divisionValue = 8
-                    dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
-                    rhythmView.dataSource = dataSource!!
+                    reloadVisualEffect()
                     waveSpeedValue = 0.04f
-                    particleSpeedValue = 0.01f
+                    particleSpeedValue = 0.005f
                     waveSpeed.progress = (waveSpeedValue * 1000).toInt()
                     division.max = 12
                     division.progress = divisionValue - 4
@@ -171,8 +199,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.radioButtonRay -> {
                     divisionValue = 256
-                    dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
-                    rhythmView.dataSource = dataSource!!
+                    waveSpeedValue = 0.04f
+                    waveSpeed.progress = (waveSpeedValue * 1000).toInt()
+                    division.max = 252
+                    division.progress = divisionValue - 4
+                    waveSpeedDisplay.text = "$waveSpeedValue"
+                    divisionDisplay.text = "$divisionValue"
+                    particleSpeed.isEnabled = false
+                }
+                R.id.radioButtonRayMono -> {
+                    divisionValue = 256
                     waveSpeedValue = 0.04f
                     waveSpeed.progress = (waveSpeedValue * 1000).toInt()
                     division.max = 252
@@ -184,6 +220,69 @@ class MainActivity : AppCompatActivity() {
             }
             reloadVisualEffect()
         }
+    }
+
+    private fun openMusicAndSetup() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "audio/*"
+        startActivityForResult(intent, OPEN_MUSIC_REQUEST_CODE);
+    }
+
+    private fun openImageAndSetup() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "image/*"
+        startActivityForResult(intent, OPEN_IMAGE_REQUEST_CODE);
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSION_OPEN_MUSIC_REQUEST_CODE -> {
+                if (grantResults.isEmpty()) return
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) return
+                }
+                openMusicAndSetup()
+            }
+            PERMISSION_OPEN_IMAGE_REQUEST_CODE -> {
+                if (grantResults.isEmpty()) return
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) return
+                }
+                openImageAndSetup()
+            }
+        }
+    }
+
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && data != null && data.data != null) {
+            when (requestCode) {
+                OPEN_MUSIC_REQUEST_CODE -> {
+                    try {
+                        if (mediaPlayer != null) mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(this, data.data)
+                        mediaPlayer!!.isLooping = true
+                        mediaPlayer!!.start()
+                        reloadVisualEffect()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        return
+                    }
+                }
+                OPEN_IMAGE_REQUEST_CODE -> {
+                    try {
+                        val coverImage = ContentHelper.absolutePathFromUri(this, data.data)
+                        if (coverImage != null) rhythmView.albumCover = BitmapFactory.decodeFile(coverImage)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        return
+                    }
+                }
+            }
+        } else
+            super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun getDominantColor(bitmap: Bitmap): Int {
@@ -227,29 +326,51 @@ class MainActivity : AppCompatActivity() {
     private fun reloadVisualEffect() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(this, R.raw.creativeminds)
+            mediaPlayer!!.isLooping = true
             mediaPlayer!!.start()
-        }
-        if (dataSource == null) {
-            dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
-            rhythmView.dataSource = dataSource!!
         }
 
         when (visualEffect.checkedRadioButtonId) {
             R.id.radioButtonRipple -> {
+                dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
                 val ripple = Ripple(rhythmView, divisionValue, waveSpeedValue, particleSpeedValue)
                 ripple.colorLF = colorL
                 ripple.colorMF = colorM
                 ripple.colorHF = colorH
                 ripple.colorParticle = colorM
+                ripple.dataSource = dataSource
                 rhythmView.visualEffect = ripple
             }
             R.id.radioButtonRay -> {
+                dataSource = PlaybackSource(mediaPlayer!!, 3 * divisionValue)
                 val ray = Ray(rhythmView, divisionValue, waveSpeedValue)
-                ray.colorLF = colorL
-                ray.colorMF = colorM
-                ray.colorHF = colorH
+                // ray.colorLF = colorL
+                // ray.colorMF = colorM
+                // ray.colorHF = colorH
+                ray.dataSource = dataSource
                 rhythmView.visualEffect = ray
             }
+            R.id.radioButtonRayMono -> {
+                dataSource = PlaybackSource(mediaPlayer!!, divisionValue)
+                val rayMono = RainbowRay(rhythmView, divisionValue, waveSpeedValue)
+                // rayMono.color = colorM
+                rayMono.dataSource = dataSource
+                rhythmView.visualEffect = rayMono
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+            mediaPlayer!!.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mediaPlayer != null && !mediaPlayer!!.isPlaying) {
+            mediaPlayer!!.start()
         }
     }
 }

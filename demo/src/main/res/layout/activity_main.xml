@@ -16,7 +16,7 @@
         <ScrollView
             android:id="@+id/optionsInnerContainer"
             android:layout_width="match_parent"
-            android:layout_height="380dp"
+            android:layout_height="300dp"
             android:background="#30ffffff"
             android:fillViewport="true">
 
@@ -187,6 +187,13 @@
                         android:layout_height="wrap_content"
                         android:padding="8dp"
                         android:text="Ray" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonRayMono"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="Rainbow ray" />
                 </RadioGroup>
 
                 <LinearLayout
@@ -234,12 +241,41 @@
     </LinearLayout>
 
     <ImageButton
+        android:id="@+id/openMusic"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_above="@+id/openImage"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_library_music_white_24dp" />
+
+    <ImageButton
+        android:id="@+id/openImage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_above="@+id/settingsToggle"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_photo_library_white_24dp" />
+
+    <ImageButton
         android:id="@+id/settingsToggle"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_above="@+id/optionsContainer"
         android:layout_alignParentRight="true"
-        android:layout_margin="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_settings_white_24dp" />
@@ -258,5 +294,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/optionsContainer"
-        android:padding="20dp" />
+        android:padding="30dp" />
 </RelativeLayout>

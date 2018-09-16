@@ -2,6 +2,7 @@ package com.github.sumimakito.rhythmview.datasource
 
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
+import android.util.Log
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -23,7 +24,7 @@ class PlaybackSource(private val mediaPlayer: MediaPlayer, size: Int) : BaseData
 
             override fun onWaveFormDataCapture(p0: Visualizer?, bytes: ByteArray?, p2: Int) {
                 val wave = Array(size) { 0 }
-                val samplingInterval = floor((bytes!!.size - 1).toFloat() / wave.size).toInt()
+                val samplingInterval = max(1, floor((bytes!!.size - 1).toFloat() / wave.size).toInt())
                 for (i in 0 until wave.size) {
                     wave[i] = max(0, min(256, bytes[i * samplingInterval] + 128))
                 }

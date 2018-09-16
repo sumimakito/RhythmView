@@ -1,18 +1,17 @@
 package com.github.sumimakito.rhythmview.effect
 
 import android.graphics.*
-import android.util.Log
-import com.github.sumimakito.rhythmview.MathUtils
 import com.github.sumimakito.rhythmview.RhythmView
 import com.github.sumimakito.rhythmview.particle.Particle
 import com.github.sumimakito.rhythmview.particle.ParticleManager
+import com.github.sumimakito.rhythmview.util.MathUtils
 import com.github.sumimakito.rhythmview.wave.WavePoint
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.01f) : BaseEffect<Int>(rhythmView) {
+class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.005f) : BaseEffect<Int>(rhythmView) {
 
     init {
         minDrawingRadius += maxDrawingWidth * 0.3f
@@ -70,8 +69,8 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
         }
         if (frameId % 30 == 0) {
             val direction = (Math.random() * 360).toFloat()
-            val startPoint = MathUtils.getPointOnCircle(centerX, centerY, minDrawingRadius * 0.8f, direction)
-            particleManager.add(Particle(startPoint, direction, particleSpeed, maxDrawingWidth))
+            val startPoint = MathUtils.getPointOnCircle(centerX, centerY, minDrawingRadius * 0.5f, direction)
+            particleManager.add(Particle(startPoint, direction, particleSpeed, minDrawingRadius * 0.5f + maxDrawingWidth * 0.4f))
         }
 
         particleManager.nextTick()

@@ -7,9 +7,9 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
-import com.github.sumimakito.rhythmview.datasource.BaseDataSource
 import com.github.sumimakito.rhythmview.effect.BaseEffect
 import java.text.DecimalFormat
+import kotlin.math.min
 import kotlin.math.round
 
 
@@ -48,19 +48,21 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
 
     var onRhythmViewLayoutChangedListener: OnRhythmViewLayoutChangedListener? = null
 
-    var dataSource: BaseDataSource<*>? = null
-
     private var scaledAlbumCover: Bitmap? = null
     var albumCover: Bitmap? = null
         set(value) {
+            field = value
+            if (value == null) return
             val clippingPaint = Paint()
             clippingPaint.color = 0xFFFFFFFF.toInt()
             clippingPaint.isAntiAlias = true
-            field = Bitmap.createBitmap(value!!.width, value.height, Bitmap.Config.ARGB_8888)
+            val size = min(value.width, value.height)
+            val squareRaw = Bitmap.createScaledBitmap(value, size, size, true)
+            field = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(albumCover)
             canvas.drawCircle((albumCover!!.width / 2).toFloat(), (albumCover!!.height / 2).toFloat(), (albumCover!!.width / 2).toFloat(), clippingPaint)
             clippingPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-            canvas.drawBitmap(value, 0f, 0f, clippingPaint)
+            canvas.drawBitmap(squareRaw, 0f, 0f, clippingPaint)
             scaledAlbumCover = null
         }
 
