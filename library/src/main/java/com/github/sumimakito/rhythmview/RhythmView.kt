@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
-import android.media.audiofx.Visualizer
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
@@ -18,15 +17,13 @@ import kotlin.math.round
 class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0)
     : View(context, attrs, defStyleAttr, defStyleRes) {
 
-    private var paintRipple = Paint()
     private var paintText = Paint()
-    private var paintFill = Paint()
+    private var paintBitmap = Paint()
     private var paintParticle = Paint()
     private var coverRotation: Float = 0f
     private var fps = 0f
     private var frames = 0
     private var frameTime: Long = 0
-    private var visualizer: Visualizer? = null
     private var coverSourceRect: Rect? = null
     private var coverTargetRect: Rect? = null
     private var renderLoopStarted: Boolean = false
@@ -39,10 +36,10 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             updateLayoutMetrics()
         }
 
-    var centerX: Float = 0f
-    var centerY: Float = 0f
-    var radius: Float = 0f
-    var maxDrawingWidth: Float = 70f
+    internal var centerX: Float = 0f
+    internal var centerY: Float = 0f
+    internal var radius: Float = 0f
+    internal var maxDrawingWidth: Float = 70f
     var maxDrawingWidthScale = 0.24f
         set(value) {
             field = value
@@ -70,20 +67,14 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
     var visualEffect: BaseEffect<*>? = null
 
     init {
-        paintRipple.color = Color.WHITE
-        paintRipple.style = Paint.Style.FILL
-        paintRipple.alpha = 60
-        paintRipple.isAntiAlias = true
-
         paintText.color = Color.WHITE
         paintText.textSize = 98f
         paintText.alpha = 40
         paintText.isAntiAlias = true
 
-        paintFill.color = Color.WHITE
-        paintFill.style = Paint.Style.FILL
-        paintFill.isAntiAlias = true
-        paintFill.isFilterBitmap = true
+        paintBitmap.color = Color.WHITE
+        paintBitmap.isAntiAlias = true
+        paintBitmap.isFilterBitmap = true
 
         paintParticle.color = Color.WHITE
         paintParticle.style = Paint.Style.FILL
@@ -138,13 +129,13 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
                 coverTargetRect = Rect(round(centerX - radius).toInt(), round(centerY - radius).toInt(), round(centerX + radius).toInt(), round(centerY + radius).toInt())
             }
             if (scaledAlbumCover == null) {
-                canvas?.drawBitmap(albumCover, Rect(0, 0, albumCover!!.width, albumCover!!.height), coverTargetRect, paintFill)
+                canvas?.drawBitmap(albumCover, Rect(0, 0, albumCover!!.width, albumCover!!.height), coverTargetRect, paintBitmap)
                 Thread {
                     scaledAlbumCover = Bitmap.createScaledBitmap(albumCover, coverTargetRect!!.width(), coverTargetRect!!.height(), true)
                     coverSourceRect = Rect(0, 0, scaledAlbumCover!!.width, scaledAlbumCover!!.height)
                 }.start()
             } else {
-                canvas?.drawBitmap(scaledAlbumCover, coverSourceRect, coverTargetRect, paintFill)
+                canvas?.drawBitmap(scaledAlbumCover, coverSourceRect, coverTargetRect, paintBitmap)
             }
             canvas?.restore()
         }
