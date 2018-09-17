@@ -22,7 +22,7 @@ import kotlin.math.min
  * When using with `PlaybackSource`, parameter `resolution` should not be larger than 1024, or the
  * capture size may exceeded the maximum capture size of the system.
  */
-class RainbowRay(rhythmView: RhythmView, private val resolution: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
+class RainbowRay @JvmOverloads constructor(rhythmView: RhythmView, private val resolution: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
 
     var color: Int = 0xffef9a9a.toInt()
     var alpha: Float = 0.65f
