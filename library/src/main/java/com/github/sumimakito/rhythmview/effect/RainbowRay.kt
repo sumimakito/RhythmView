@@ -17,8 +17,6 @@ import kotlin.math.min
  *
  * Resolution of the data source should not be less than `resolution` here.
  *
- * Parameter `resolution` should not be larger than 16 or the edges may looks not smooth enough.
- *
  * When using with `PlaybackSource`, parameter `resolution` should not be larger than 1024, or the
  * capture size may exceeded the maximum capture size of the system.
  */
