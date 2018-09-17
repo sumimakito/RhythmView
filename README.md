@@ -32,10 +32,10 @@ Firstly, add lines below in the project-level build.gradle:
 
 ```
 allprojects {
-	repositories {
-		...
-		maven { url 'https://jitpack.io' }
-	}
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
 }
 ```
 
@@ -45,7 +45,7 @@ Then, add lines below in the module-level build.gradle:
 
 ```
 dependencies {
-        compile 'com.github.SumiMakito:RhythmView:<VERSION>'
+    compile 'com.github.SumiMakito:RhythmView:<VERSION>'
 }
 ```
 
@@ -105,6 +105,11 @@ public class PlayerActivity extends Activity {
             PlaybackSource dataSource = new PlaybackSource(mediaPlayer, resolution);
             // initialize the visual effect
             Ripple ripple = new Ripple(rhythmView, 8);
+            // set colors for high, medium, low frequencies and particles
+            ripple.setColorHF(0xffef9a9a);
+            ripple.setColorMF(0xffef9a9a);
+            ripple.setColorLF(0xffef9a9a);
+            ripple.setColorParticle(0xffef9a9a);
             // set the data source for the visual effect
             ripple.setDataSource(dataSource);
             // start the playback only once
@@ -153,6 +158,11 @@ class PlayerActivity : Activity() {
             val dataSource = PlaybackSource(mediaPlayer!!, resolution)
             // initialize the visual effect
             val ripple = Ripple(view, 8)
+            // set colors for high, medium, low frequencies and particles
+            ripple.colorHF = 0xffef9a9a
+            ripple.colorMF = 0xffef9a9a
+            ripple.colorLF = 0xffef9a9a
+            ripple.colorParticle = 0xffef9a9a
             // set the data source for the visual effect
             ripple.dataSource = dataSource
             // start the playback only once
@@ -183,11 +193,11 @@ innerHeight = height - paddingTop - paddingBottom
 
 innerSize = min(innerWidth, innerHeight)
 
-centerX = paddingLeft + innerWidth * .5f
-centerY = paddingTop + innerHeight * .5f
+centerX = paddingLeft + innerWidth * 0.5
+centerY = paddingTop + innerHeight * 0.5
 
-maxDrawingWidth = innerSize * maxDrawingWidthScale / 2f
-radius = (innerSize - 2 * maxDrawingWidth - 2 * innerDrawingPaddingScale * innerSize) / 2f
+maxDrawingWidth = innerSize * maxDrawingWidthScale * 0.5
+radius = (innerSize - 2 * maxDrawingWidth - 2 * innerDrawingPaddingScale * innerSize) * 0.5
 minDrawingRadius = radius + innerDrawingPaddingScale * innerSize
 ```
 
@@ -235,7 +245,7 @@ If true, an FPS counter will display at the top left corner of the view.
 
 *Type: Float*
 
-*Default: 0.24f
+*Default: 0.24f*
 
 ###### albumCover
 
@@ -249,3 +259,18 @@ Square images are recommended. Set to null to disable.
 
 Non-square-shaped images will be resized and fit in to a squared area for clipping.
 
+### Donation
+
+Claps for everyone who offers support. Cheers!
+
+You can donate by [PayPal](https://www.paypal.me/makito) or [Alipay](https://qr.alipay.com/a6x02021re1jk4ftcymlw79).
+
+### License
+
+<img alt="Apache-2.0 license" src="https://lucene.apache.org/images/mantle-power.png" width="128">
+
+RhythmView is available under the Apache-2.0 license. 
+
+See the LICENSE file for more info.
+
+Copyright &copy; 2017-2018 Makito.
