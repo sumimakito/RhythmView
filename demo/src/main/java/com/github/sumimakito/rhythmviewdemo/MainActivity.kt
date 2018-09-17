@@ -20,12 +20,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.github.sumimakito.cappuccino.ContentHelper
-import com.github.sumimakito.rhythmview.RhythmView
 import com.github.sumimakito.rhythmview.datasource.PlaybackSource
 import com.github.sumimakito.rhythmview.effect.RainbowRay
 import com.github.sumimakito.rhythmview.effect.Ray
 import com.github.sumimakito.rhythmview.effect.Ripple
-import com.github.sumimakito.rhythmviewdemo.R.id.rhythmView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.max
 import kotlin.math.min
@@ -61,15 +59,13 @@ class MainActivity : AppCompatActivity() {
 
         rhythmView.showFpsCounter = true
 
-        rhythmView.onRhythmViewLayoutChangedListener = object : RhythmView.OnRhythmViewLayoutChangedListener {
-            override fun onLayoutChanged(rhythmView: RhythmView) {
-                if (rhythmView.albumCover == null) {
-                    val cover = BitmapFactory.decodeResource(resources, R.raw.cover)
-                    updateColor(cover)
-                    rhythmView.albumCover = cover
-                }
-                reloadVisualEffect()
+        rhythmView.onRhythmViewLayoutChangedListener = { view ->
+            if (view.albumCover == null) {
+                val cover = BitmapFactory.decodeResource(resources, R.raw.cover)
+                updateColor(cover)
+                view.albumCover = cover
             }
+            reloadVisualEffect()
         }
 
         helpButton.setOnClickListener {

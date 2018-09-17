@@ -48,7 +48,7 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
     var isPaused: Boolean = true
 
     /**
-     * If true, a FPS counter will show up at the top left corner of the view.
+     * If true, an FPS counter will show up at the top left corner of the view.
      */
     var showFpsCounter: Boolean = false
     var innerDrawingPaddingScale: Float = 0.01f
@@ -63,7 +63,7 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             updateLayoutMetrics()
         }
 
-    var onRhythmViewLayoutChangedListener: OnRhythmViewLayoutChangedListener? = null
+    var onRhythmViewLayoutChangedListener: (RhythmView)->Unit = {_ -> }
 
     private var scaledAlbumCover: Bitmap? = null
     var albumCover: Bitmap? = null
@@ -111,7 +111,7 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
         minDrawingRadius = radius + innerDrawingPaddingScale * innerSize
         coverTargetRect = null
 
-        onRhythmViewLayoutChangedListener?.onLayoutChanged(this)
+        onRhythmViewLayoutChangedListener.invoke(this)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -184,9 +184,5 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
                 frames++
             }
         }
-    }
-
-    interface OnRhythmViewLayoutChangedListener {
-        fun onLayoutChanged(rhythmView: RhythmView)
     }
 }

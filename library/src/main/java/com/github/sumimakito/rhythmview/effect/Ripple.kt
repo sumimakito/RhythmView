@@ -21,7 +21,7 @@ import kotlin.math.min
  * When using with `PlaybackSource`, parameter `resolution` should not be larger than 256, or the
  * capture size may exceeded the maximum capture size of the system.
  */
-class Ripple(rhythmView: RhythmView, private val resolution: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.005f) : BaseEffect<Int>(rhythmView) {
+class Ripple @JvmOverloads constructor(rhythmView: RhythmView, private val resolution: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.005f) : BaseEffect<Int>(rhythmView) {
     init {
         /**
          * Since the radius for the paths seems to be not that precise, in order to reveal the ripple
