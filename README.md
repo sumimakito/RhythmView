@@ -6,13 +6,11 @@
 [![release](https://img.shields.io/github/release/SumiMakito/RhythmView.svg)](https://github.com/SumiMakito/RhythmView/releases/latest)
 [![license](https://img.shields.io/github/license/SumiMakito/RhythmView.svg)](https://github.com/SumiMakito/RhythmView/blob/master/LICENSE)
 
-
-
 RhythmView - Visualizes rhythms for you.
 
-
-
 ### Demo app
+
+> Try all preset visual effects and play with the options like a master! 
 
 <a href="https://play.google.com/store/apps/details?id=com.github.sumimakito.rhythmview" target="_blank"><img src="art/play_store_badge.png" alt="Google Play Store" width="200"></a>
 
@@ -261,9 +259,9 @@ Non-square-shaped images will be resized and fit in to a squared area for clippi
 
 ### Donation
 
-Claps for everyone who offers support. Cheers!
+Cheers! Would you like to buy me a cup of Caramel <del>Makito</del> Macchiato?
 
-You can donate by [PayPal](https://www.paypal.me/makito) or [Alipay](https://qr.alipay.com/a6x02021re1jk4ftcymlw79).
+You can donate with [PayPal](https://www.paypal.me/makito) or [Alipay](https://qr.alipay.com/a6x02021re1jk4ftcymlw79).
 
 ### License
 
