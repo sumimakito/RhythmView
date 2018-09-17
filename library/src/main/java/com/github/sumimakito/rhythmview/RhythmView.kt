@@ -12,7 +12,9 @@ import java.text.DecimalFormat
 import kotlin.math.min
 import kotlin.math.round
 
-
+/**
+ * A view for visualizing rhythms.
+ */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0)
     : View(context, attrs, defStyleAttr, defStyleRes) {
@@ -27,19 +29,34 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
     private var coverSourceRect: Rect? = null
     private var coverTargetRect: Rect? = null
     private var renderLoopStarted: Boolean = false
-    private var renderCanvas: Boolean = false
     private var renderInterval = 15L
-    var minDrawingRadius: Float = 0f
+    internal var centerX: Float = 0f
+    internal var centerY: Float = 0f
+    internal var radius: Float = 0f
+    internal var minDrawingRadius: Float = 0f
+    internal var maxDrawingWidth: Float = 70f
+
+    /**
+     * Speed of the spinning cover.
+     * Unit: degree
+     */
+    var coverSpinningSpeed: Float = 0.5f
+
+    /**
+     * If true, the cover will stop spinning.
+     */
+    var isPaused: Boolean = true
+
+    /**
+     * If true, a FPS counter will show up at the top left corner of the view.
+     */
+    var showFpsCounter: Boolean = false
     var innerDrawingPaddingScale: Float = 0.01f
         set(value) {
             field = value
             updateLayoutMetrics()
         }
 
-    internal var centerX: Float = 0f
-    internal var centerY: Float = 0f
-    internal var radius: Float = 0f
-    internal var maxDrawingWidth: Float = 70f
     var maxDrawingWidthScale = 0.24f
         set(value) {
             field = value
@@ -70,8 +87,8 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
 
     init {
         paintText.color = Color.WHITE
-        paintText.textSize = 98f
-        paintText.alpha = 40
+        paintText.textSize = 36f
+        paintText.alpha = 180
         paintText.isAntiAlias = true
 
         paintBitmap.color = Color.WHITE
@@ -119,8 +136,10 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        val df = DecimalFormat("0.00")
-        canvas?.drawText("${df.format(fps)} FPS", 18f, 108f, paintText)
+        if (showFpsCounter) {
+            val df = DecimalFormat("0.00")
+            canvas?.drawText("${df.format(fps)} f/s", 18f, 18f + paintText.textSize, paintText)
+        }
 
         visualEffect?.render(canvas!!)
 
@@ -130,6 +149,9 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
             if (coverTargetRect == null) {
                 coverTargetRect = Rect(round(centerX - radius).toInt(), round(centerY - radius).toInt(), round(centerX + radius).toInt(), round(centerY + radius).toInt())
             }
+            /**
+             * Cache the scaled album cover for a better performance.
+             */
             if (scaledAlbumCover == null) {
                 canvas?.drawBitmap(albumCover, Rect(0, 0, albumCover!!.width, albumCover!!.height), coverTargetRect, paintBitmap)
                 Thread {
@@ -144,20 +166,24 @@ class RhythmView @JvmOverloads constructor(context: Context?, attrs: AttributeSe
 
         visualEffect?.onFrameRendered()
 
-        coverRotation += 0.5f
+        if (!isPaused) {
+            coverRotation += coverSpinningSpeed
+        }
         if (coverRotation >= 360f) {
             coverRotation = 0f
         }
-        val time = System.currentTimeMillis()
-        val delta = time - frameTime
-        if (delta > 1000) {
-            frameTime = time
-            fps = (frames.toFloat() / delta * 1000)
-            frames = 0
-        } else {
-            frames++
+
+        if (showFpsCounter) {
+            val time = System.currentTimeMillis()
+            val delta = time - frameTime
+            if (delta > 1000) {
+                frameTime = time
+                fps = (frames.toFloat() / delta * 1000)
+                frames = 0
+            } else {
+                frames++
+            }
         }
-        renderCanvas = true
     }
 
     interface OnRhythmViewLayoutChangedListener {

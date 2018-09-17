@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">RhythmView</string>
+    <string name="permission_prompt">In order to demonstrate</string>
+    <string name="permission_prompt_tail"> permission to work. But don\'t worry, we won\'t collect any of your personal data. Besides, this app is shipped without INTERNET permission.</string>
 </resources>

@@ -11,9 +11,22 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.005f) : BaseEffect<Int>(rhythmView) {
-
+/**
+ * A preset visual effect.
+ *
+ * Resolution of the data source should not be less than `resolution * 3` here.
+ *
+ * Parameter `resolution` should not be larger than 16 or the edges may looks not smooth enough.
+ *
+ * When using with `PlaybackSource`, parameter `resolution` should not be larger than 256, or the
+ * capture size may exceeded the maximum capture size of the system.
+ */
+class Ripple(rhythmView: RhythmView, private val resolution: Int = 8, private val waveSpeed: Float = 0.06f, private val particleSpeed: Float = 0.005f) : BaseEffect<Int>(rhythmView) {
     init {
+        /**
+         * Since the radius for the paths seems to be not that precise, in order to reveal the ripple
+         * even if the playback has stopped, I applied a dirty-fix.
+         */
         minDrawingRadius += maxDrawingWidth * 0.3f
     }
 
@@ -34,11 +47,12 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
     private var paintParticle = Paint()
     private var delta: Float
     private var particleManager = ParticleManager()
+    private var allZero: Boolean = true
 
     init {
-        if (division < 4) throw RuntimeException("Division should be an integer larger than 4.")
-        delta = 360f / division
-        for (i in 0 until division * 3) {
+        if (resolution < 4) throw RuntimeException("Division should be an integer larger than 4.")
+        delta = 360f / resolution
+        for (i in 0 until resolution * 3) {
             wavePoints.add(WavePoint(0f, waveSpeed, 0f, 1f))
         }
 
@@ -56,18 +70,30 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
     }
 
     private fun refillWave(wave: Array<Int>) {
+        var allZero = true
         for (i in 0 until min(wavePoints.size, wave.size)) {
+            if (wave[i] != 0) allZero = false
             wavePoints[i].changeTo(wave[i] / 256f)
         }
+        this.allZero = allZero
     }
 
     override fun onFrameRendered() {
+        /**
+         * Refill the waveform data every two frames to reduce the changing rate for the wave.
+         */
         if (frameId % 2 == 0) {
             if (dataSource != null && dataSource!!.data != null) {
                 refillWave(dataSource!!.data!!)
             }
         }
-        if (frameId % 30 == 0) {
+
+        /**
+         * Create a new particle every 30 frames.
+         *
+         * If the playback stops (waveform has no non-zero items), stop creating new particles.
+         */
+        if (!allZero && frameId % 30 == 0) {
             val direction = (Math.random() * 360).toFloat()
             val startPoint = MathUtils.getPointOnCircle(centerX, centerY, minDrawingRadius * 0.5f, direction)
             particleManager.add(Particle(startPoint, direction, particleSpeed, minDrawingRadius * 0.5f + maxDrawingWidth * 0.4f))
@@ -122,31 +148,30 @@ class Ripple(rhythmView: RhythmView, private val division: Int = 8, private val 
     private fun buildPath() {
         curvePathLF.reset()
         curvePathLF.moveTo(curvePoints[0].x, curvePoints[0].y)
-        for (i in 1 until division) {
+        for (i in 1 until resolution) {
             curvePathLF.lineTo(curvePoints[i].x, curvePoints[i].y)
         }
         curvePathLF.close()
 
         curvePathMF.reset()
-        curvePathMF.moveTo(curvePoints[division].x, curvePoints[division].y)
-        for (i in 1 until division) {
-            curvePathMF.lineTo(curvePoints[division + i].x, curvePoints[division + i].y)
+        curvePathMF.moveTo(curvePoints[resolution].x, curvePoints[resolution].y)
+        for (i in 1 until resolution) {
+            curvePathMF.lineTo(curvePoints[resolution + i].x, curvePoints[resolution + i].y)
         }
         curvePathMF.close()
 
         curvePathHF.reset()
-        curvePathHF.moveTo(curvePoints[division * 2].x, curvePoints[division * 2].y)
-        for (i in 1 until division) {
-            curvePathHF.lineTo(curvePoints[division * 2 + i].x, curvePoints[division * 2 + i].y)
+        curvePathHF.moveTo(curvePoints[resolution * 2].x, curvePoints[resolution * 2].y)
+        for (i in 1 until resolution) {
+            curvePathHF.lineTo(curvePoints[resolution * 2 + i].x, curvePoints[resolution * 2 + i].y)
         }
         curvePathHF.close()
     }
 
     private fun getWaveHeight(index: Int): Float {
         if (index < wavePoints.size) {
-            return min(1f, max(0f, wavePoints[index].displayValue)) * maxDrawingWidth * 0.3f
+            return min(1f, max(0f, wavePoints[index].displayValue)) * maxDrawingWidth * 0.4f
         }
         return 0f
     }
-
 }

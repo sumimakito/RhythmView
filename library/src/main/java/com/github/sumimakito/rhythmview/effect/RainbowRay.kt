@@ -12,7 +12,17 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class RainbowRay(rhythmView: RhythmView, private val division: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
+/**
+ * A preset visual effect.
+ *
+ * Resolution of the data source should not be less than `resolution` here.
+ *
+ * Parameter `resolution` should not be larger than 16 or the edges may looks not smooth enough.
+ *
+ * When using with `PlaybackSource`, parameter `resolution` should not be larger than 1024, or the
+ * capture size may exceeded the maximum capture size of the system.
+ */
+class RainbowRay(rhythmView: RhythmView, private val resolution: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
 
     var color: Int = 0xffef9a9a.toInt()
     var alpha: Float = 0.65f
@@ -25,9 +35,9 @@ class RainbowRay(rhythmView: RhythmView, private val division: Int = 256, privat
     private val hsv = FloatArray(3)
 
     init {
-        if (division < 4) throw RuntimeException("Division should be an integer larger than 4.")
-        delta = 360f / division
-        for (i in 0 until division) {
+        if (resolution < 4) throw RuntimeException("Division should be an integer larger than 4.")
+        delta = 360f / resolution
+        for (i in 0 until resolution) {
             wavePoints.add(WavePoint(0f, waveSpeed, 0f, 1f))
         }
 
@@ -63,15 +73,18 @@ class RainbowRay(rhythmView: RhythmView, private val division: Int = 256, privat
     override fun render(canvas: Canvas) {
         paintRay.alpha = floor(255f * alpha).toInt()
 
-        for (i in 0 until division) {
-            paintRay.color = color
+        for (i in 0 until resolution) {
             val start = innerPoints[i]
             val stop = outerPoints[i]
             canvas.drawLine(start.x, start.y, stop.x, stop.y, paintRay)
+
+            /**
+             * Apply color magic! Rua!
+             */
             Color.colorToHSV(color, hsv)
-            hsv[0] += 1f / division * 360f
+            hsv[0] += max(1f, i.toFloat() / resolution * 360f)
             while (hsv[0] >= 360) hsv[0] -= 360f
-            color = Color.HSVToColor(hsv)
+            paintRay.color = Color.HSVToColor(hsv)
         }
     }
 

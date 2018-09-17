@@ -3,15 +3,22 @@ package com.github.sumimakito.rhythmview.effect
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
-import com.github.sumimakito.rhythmview.util.MathUtils
 import com.github.sumimakito.rhythmview.RhythmView
+import com.github.sumimakito.rhythmview.util.MathUtils
 import com.github.sumimakito.rhythmview.wave.WavePoint
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-class Ray(rhythmView: RhythmView, private val division: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
-
+/**
+ * A preset visual effect.
+ *
+ * Resolution of the data source should not be less than `resolution * 3` here.
+ *
+ * When using with `PlaybackSource`, parameter `resolution` should not be larger than 256, or the
+ * capture size may exceeded the maximum capture size of the system.
+ */
+class Ray(rhythmView: RhythmView, private val resolution: Int = 256, private val waveSpeed: Float = 0.04f) : BaseEffect<Int>(rhythmView) {
     var colorHF: Int = 0xffef9a9a.toInt()
     var colorMF: Int = 0xff90caf9.toInt()
     var colorLF: Int = 0xffa5d6a7.toInt()
@@ -26,9 +33,9 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
     private var delta: Float
 
     init {
-        if (division < 4) throw RuntimeException("Division should be an integer larger than 4.")
-        delta = 360f / division
-        for (i in 0 until division * 3) {
+        if (resolution < 4) throw RuntimeException("Division should be an integer larger than 4.")
+        delta = 360f / resolution
+        for (i in 0 until resolution * 3) {
             wavePoints.add(WavePoint(0f, waveSpeed, 0f, 1f))
         }
 
@@ -66,7 +73,7 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
         paintRay.alpha = floor(255f * alphaHF).toInt()
 
         var ptIndex = 0
-        for (i in 0 until division) {
+        for (i in 0 until resolution) {
             val start = innerPoints[ptIndex]
             val stop = outerPoints[ptIndex]
             canvas.drawLine(start.x, start.y, stop.x, stop.y, paintRay)
@@ -75,7 +82,7 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
 
         paintRay.color = colorLF
         paintRay.alpha = floor(255f * alphaLF).toInt()
-        for (i in 0 until division) {
+        for (i in 0 until resolution) {
             val start = innerPoints[ptIndex]
             val stop = outerPoints[ptIndex]
             canvas.drawLine(start.x, start.y, stop.x, stop.y, paintRay)
@@ -84,7 +91,7 @@ class Ray(rhythmView: RhythmView, private val division: Int = 256, private val w
 
         paintRay.color = colorMF
         paintRay.alpha = floor(255f * alphaMF).toInt()
-        for (i in 0 until division) {
+        for (i in 0 until resolution) {
             val start = innerPoints[ptIndex]
             val stop = outerPoints[ptIndex]
             canvas.drawLine(start.x, start.y, stop.x, stop.y, paintRay)

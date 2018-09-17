@@ -18,7 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:background="#30ffffff"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -33,6 +34,38 @@
                     android:text="Options"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Cover spinning speed" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/spinningSpeedDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ems="3" />
+
+
+                    <SeekBar
+                        android:id="@+id/spinningSpeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="60"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp" />
+
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -65,6 +98,7 @@
                         android:paddingBottom="4dp" />
 
                 </LinearLayout>
+
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -101,7 +135,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
-                    android:text="Division" />
+                    android:text="Resolution" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -189,7 +223,7 @@
                         android:text="Ray" />
 
                     <RadioButton
-                        android:id="@+id/radioButtonRayMono"
+                        android:id="@+id/radioButtonRainbowRay"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="8dp"
@@ -241,15 +275,28 @@
     </LinearLayout>
 
     <ImageButton
+        android:id="@+id/helpButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_above="@+id/openMusic"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_help_white_24dp" />
+
+    <ImageButton
         android:id="@+id/openMusic"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_above="@+id/openImage"
         android:layout_alignParentRight="true"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_library_music_white_24dp" />
@@ -262,7 +309,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_photo_library_white_24dp" />
@@ -280,14 +327,49 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_settings_white_24dp" />
 
+
+    <LinearLayout
+        android:id="@+id/viewOnGitHub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/defaultCover"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RhythmView by Makito"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Click to view on GitHub"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
     <TextView
+        android:id="@+id/defaultCover"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/optionsContainer"
-        android:layout_margin="16dp"
-        android:text="RhythmView by Makito"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="16dp"
+        android:text="Default cover photo by Makito"
+        android:textSize="12sp"
+        android:textStyle="italic" />
 
     <com.github.sumimakito.rhythmview.RhythmView
         android:id="@+id/rhythmView"
@@ -295,4 +377,5 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/optionsContainer"
         android:padding="30dp" />
+
 </RelativeLayout>
