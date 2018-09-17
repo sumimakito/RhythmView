@@ -8,15 +8,21 @@
 
 
 
-RhythmView - Visualizes rhythms for you
+RhythmView - Visualizes rhythms for you.
 
 
 
-### Demo App Available on Play Store
+### Demo app
 
 <a href="https://play.google.com/store/apps/details?id=com.github.sumimakito.rhythmview" target="_blank"><img src="art/play_store_badge.png" alt="Google Play Store" width="200"></a>
 
 
 
 ### Preview
+
+![preview](art/preview.gif)
+
+
+
+### Quick start
 

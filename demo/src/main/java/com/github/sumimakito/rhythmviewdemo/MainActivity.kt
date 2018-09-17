@@ -25,6 +25,7 @@ import com.github.sumimakito.rhythmview.datasource.PlaybackSource
 import com.github.sumimakito.rhythmview.effect.RainbowRay
 import com.github.sumimakito.rhythmview.effect.Ray
 import com.github.sumimakito.rhythmview.effect.Ripple
+import com.github.sumimakito.rhythmviewdemo.R.id.rhythmView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.max
 import kotlin.math.min
