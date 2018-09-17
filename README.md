@@ -14,7 +14,7 @@ RhythmView - Visualizes rhythms for you.
 
 <a href="https://play.google.com/store/apps/details?id=com.github.sumimakito.rhythmview" target="_blank"><img src="art/play_store_badge.png" alt="Google Play Store" width="200"></a>
 
-If you have difficulties accessing Play Store, you may found the APK in the [releases](https://github.com/SumiMakito/RhythmView/releases).
+If you have difficulties accessing the Play Store, you may find APK files in [releases](https://github.com/SumiMakito/RhythmView/releases).
 
 ### Preview
 
